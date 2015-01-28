@@ -39,14 +39,18 @@ public class UrbanPlanning {
 		IntVar[] comInRows = new IntVar[10];
 		for (int i = 0; i < rows; i++) {
 
-			IntVar[] row = new IntVar[] {grid[i*rows + 0], grid[i*rows + 1], grid[i*rows + 2], grid[i*rows + 3], grid[i*rows + 4]};
+			IntVar[] row = new IntVar[rows];
+			IntVar[] col = new IntVar[rows];
+			for (int j = 0; j < row.length; j++) {
+				row[j] = grid[i*rows + j];
+				col[j] = grid[i + rows*j];
+			}
+			
 			resInRows[i] = new IntVar(store, "resInRow" + i, 0, 5);
 			store.impose(new Count(row, resInRows[i], 0));
 			comInRows[i] = new IntVar(store, "comInRow" + i, 0, 5);
 			store.impose(new Count(row, comInRows[i], 1));
 			
-			
-			IntVar[] col = new IntVar[] {grid[i + rows * 0], grid[i + rows * 1], grid[i + rows * 2], grid[i + rows * 3], grid[i + rows * 4]};
 			resInRows[i+rows] = new IntVar(store, "resInRow" + (i+rows), 0, 5);
 			store.impose(new Count(col, resInRows[i+rows], 0));
 			comInRows[i+rows] = new IntVar(store, "comInRow" + (i+rows), 0, 5);
@@ -67,23 +71,9 @@ public class UrbanPlanning {
 		
 
 		
-		//IntVar[] lines = new IntVar[1];
-		//lines[0] = new IntVar(store,"line1", -5, 5);
-		//store.impose(new Sum(new IntVar[] {grid[10], grid[11], grid[12], grid[13], grid[14]},lines[0]));
-		
-		
-		//IntVar cost = new IntVar(store, "cost", -50, 50);
-		//store.impose(new Sum(lines, cost));
-		
-		
-		
-		
-		//IntVar rowCost = new IntVar(store, "rowCost", -5, 5);
-		//store.impose(new Sum(grid[0..4], rowCost));
-		
 		Search<IntVar> search = new DepthFirstSearch<IntVar>();
 		SelectChoicePoint <IntVar> select = new InputOrderSelect <IntVar>(store, grid, new IndomainMin<IntVar>());
-		boolean result = search.labeling(store, select, cost);
+		search.labeling(store, select, cost);
 
 		
 	}
