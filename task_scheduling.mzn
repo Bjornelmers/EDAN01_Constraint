@@ -61,21 +61,23 @@ constraint forall(t in TASKS)(
 constraint cumulative(r, [1 | t in TASKS], dur, end_time);
 
 % no overlaps
-constraint forall (i in TASKS, j in TASKS) (
-  j == i \/ 
-  r[i] != r[j] \/ 
+constraint forall (i, j in TASKS where i != j /\ r[i] == r[j]) (
   start[i] + dur[i] <= start[j] \/ 
   start[j] + dur[j] <= start[i]
 );
 
 % data transfers matrices
-constraint forall(t in TASKS, d in dependencies[t])(
-  (r[d] == r[t]) \/ (tt[d, t] == 1 /\ dt[r[d], r[t]] == 1)
+constraint forall(t in TASKS, d in dependencies[t] where r[d] != r[t])(
+  tt[d,    t   ] == 1 /\ 
+  dt[r[d], r[t]] == 1
 );
 
 % time constraints
 constraint forall(t in TASKS, d in dependencies[t])(
-  start[d] + dur[d] + tt[d, t]  <= start[t] /\
+  start[d] + dur[d] + tt[d, t]  <= start[t]
+);
+
+constraint forall(t in TASKS)(
   start[t] + dur[t] <= end_time
 );
 
